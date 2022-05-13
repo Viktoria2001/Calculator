@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
 						res+=f[i]*g[i];
 					}
 					fprintf (fout, "%lf\n", res);
+					res=0;
 					free (f);
 					free (g);
 					fclose (fout);
