@@ -45,6 +45,7 @@ void push (list *l, element *data)
 	tmp->res = data->res;
 	tmp->size = data->size;
 	tmp->next = NULL;
+	tmp->result = data->result;
 	if (l->head==NULL)
 	{
 		l->head = tmp;
@@ -80,6 +81,9 @@ int main(int argc, char *argv[])
 	setvbuf(stderr, NULL, _IONBF, 0);
 	char input[259], output[259];
 	char h;
+	double d;
+	double *result;
+	double res; //задаем переменную для хранения результата
 	element *var;
 	list l1,l2;
 	do
@@ -132,30 +136,33 @@ int main(int argc, char *argv[])
 			var->c = l1.current->c;
 			var->x = l1.current->x;
 			var->y = l1.current->y;
+			var->result = l1.current->result;
+			var->res = l1.current->res;
 			var->size = l1.current->size;
 			switch (var->regime)
 			{
 			case 'v':
 				switch (var->c)
 				{
-				var->res = malloc (var->size*sizeof(double));
 				case '+':
-					for (int i=0;i<var->size;i++) var->res[i] = var->x[i]+var->y[i];
+					result = malloc (var->size*sizeof(double));
+					for (int i=0;i<var->size;i++) result[i] = var->x[i]+var->y[i];
+					var->res = result;
 					break;
 				case '-':
-					for (int i=0;i<var->size;i++) var->res[i] = var->x[i]-var->y[i];
+					for (int i=0;i<var->size;i++) result[i] = var->x[i]-var->y[i];
+					var->res = result;
 					break;
 				case '*':
-					double res; //задаем переменную для хранения результата
 					for (int i=0;i<var->size;i++)
 					{
 						res+=var->x[i]*var->y[i];
 					}
+					var->result = res;
 					break;
 				}
 				break;
 				case 'n':
-					double d;
 					switch (var->c)
 					{
 					case '+': // блок суммы
@@ -237,7 +244,7 @@ int main(int argc, char *argv[])
 					}
 					fprintf (fout, " )\n");
 				}
-				else fprintf (fout, " ) = %lf\n", *l2.current->res);
+				else fprintf (fout, " ) = %lf\n", l2.current->result);
 				break;
 			case 'n':
 				if (l2.current->c == '!')
