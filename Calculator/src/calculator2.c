@@ -25,6 +25,10 @@ int main(int argc, char *argv[])
 		puts ("Введите имя выходного файла");
 		scanf ("%s", output);
 		fin=fopen (input, "r");
+		if ((fout=fopen(output, "a"))==NULL)
+			{
+				fout=fopen(output, "w");
+			}
 		while (feof(fin) == 0)
 		{
 			// сначала запишем все функции и их обозначения
@@ -34,10 +38,7 @@ int main(int argc, char *argv[])
 	//		printf ("деление, знак /\n");
 	//		printf ("степень, знак ^\n");
 	//		printf ("факториал, знак !\n");
-			if ((fout=fopen(output, "a"))==NULL)
-			{
-				fout=fopen(output, "w");
-			}
+
 			double a,b,d; // задаем переменные типа double
 			char c; // задаем переменную типа char
 			char regime;
@@ -75,7 +76,6 @@ int main(int argc, char *argv[])
 					fprintf (fout, ")\n");
 					free (f);
 					free (g);
-					fclose (fout);
 					break;
 				}
 				case '-':
@@ -103,7 +103,6 @@ int main(int argc, char *argv[])
 					fprintf (fout, ")\n");
 					free (f);
 					free (g);
-					fclose (fout);
 					break;
 				}
 				case '*':
@@ -133,7 +132,6 @@ int main(int argc, char *argv[])
 					res=0;
 					free (f);
 					free (g);
-					fclose (fout);
 					break;
 				}
 				}
@@ -145,23 +143,19 @@ int main(int argc, char *argv[])
 					{
 					case '+': // блок суммы
 						fscanf (fin, "%lg %lg", &a, &b);
-						fprintf (fout, " %lg + %lg = %lg\n", a,b,a+b);
-						fclose (fout);
+						fprintf (fout, "%lg + %lg = %lg\n", a,b,a+b);
 						break;
 					case '-': // блок разности
 						fscanf (fin, "%lg %lg", &a, &b);
-						fprintf (fout, " %lg - %lg = %lg\n", a,b,a-b);
-						fclose (fout);
+						fprintf (fout, "%lg - %lg = %lg\n", a,b,a-b);
 						break;
 					case '*': // блок умножения
 						fscanf (fin, "%lg %lg", &a, &b);
-						fprintf (fout, " %lg * %lg = %lg\n", a,b,a*b);
-						fclose (fout);
+						fprintf (fout, "%lg * %lg = %lg\n", a,b,a*b);
 						break;
 					case '/': // блок деления
 						fscanf (fin, "%lg %lg", &a, &b);
-						fprintf (fout, " %lg / %lg = %lg\n", a,b,a/b);
-						fclose (fout);
+						fprintf (fout, "%lg / %lg = %lg\n", a,b,a/b);
 						break;
 					case '^': // блок возведения в степень
 						fscanf (fin, "%lg %lg", &a, &b);
@@ -170,8 +164,7 @@ int main(int argc, char *argv[])
 						{
 							d=d*a;
 						}
-						fprintf (fout, " %lg ^ %lg = %lg\n", a,b,d);
-						fclose (fout);
+						fprintf (fout, "%lg ^ %lg = %lg\n", a,b,d);
 						break;
 					case '!': // блок факториала
 						d=1; // приравниваем, чтобы посчитать факториал
@@ -182,25 +175,18 @@ int main(int argc, char *argv[])
 							{
 								d=d*(i+1);
 							}
-							fprintf (fout, "%lg! = %lg\n", a,b);
+							fprintf (fout, "%lg! = %lg\n", a,d);
 						}
-						else
-							fprintf (fout, "nop");
-						fclose (fout);
 						break;
-					default: fprintf (fout, "nop");
-					fclose (fout);
 					}
 			break;
 			}
-			default: fprintf (fout, "такой операции нет, введите другую");
-			fclose (fout);
 			}
 		}
-		puts ("\nХотите продолжить? Введите y, если да, n, если нет");
-		scanf (" %c", &h);
 		fclose (fin);
 		fclose (fout);
+		puts ("\nХотите продолжить? Введите y, если да, n, если нет");
+		scanf (" %c", &h);
 	}
 	while (h!='n');
 	return 0;
