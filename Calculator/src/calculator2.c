@@ -22,22 +22,21 @@ typedef struct element
 	struct element *next;
 } element;
 
-typedef struct list
+typedef struct queue
 {
 	element *head;
-	element *current;
-} list;
+	element *tail;
+} queue;
 
-void initList (list *l)
+void initqueue (queue *q)
 {
-	l->head = NULL;
-	l->current = NULL;
+	q->head = NULL;
+	q->tail = NULL;
 }
 
-void push (list *l, element *data)
+void enqueue (queue *q, element *data)
 {
 	element* tmp = malloc (sizeof(element));
-	element *last = l->head;
 	tmp->c = data->c;
 	tmp->x = data->x;
 	tmp->y = data->y;
@@ -46,32 +45,41 @@ void push (list *l, element *data)
 	tmp->size = data->size;
 	tmp->next = NULL;
 	tmp->result = data->result;
-	if (l->head==NULL)
+	if (q->tail != NULL)
 	{
-		l->head = tmp;
-		return;
+		q->tail->next = tmp;
 	}
-	while (last->next != NULL)
+	q->tail = tmp;
+	if (q->head == NULL)
 	{
-		last = last->next;
+		q->head = tmp;
 	}
-	last->next = tmp;
-	return;
 }
 
-void delete (list *l)
+element* dequeue (queue *q)
 {
-	element *tmp;
-	if (&l->head == NULL) return;
-	tmp = l->head;
-	l->head = l->head->next;
+	element *out;
+	out = malloc (sizeof (element));
+	if (q->head == NULL)
+	{
+		out = NULL;
+		return out;
+	}
+	element *tmp = q->head;
+	out->c = tmp->c;
+	out->res = tmp->res;
+	out->result = tmp->result;
+	out->x = tmp->x;
+	out->y = tmp->y;
+	out->size = tmp->size;
+	out->regime = tmp->regime;
+	q->head = q->head->next;
+	if (q->head == NULL)
+	{
+		q->tail = NULL;
+	}
 	free (tmp);
-}
-
-element* next (list *l)
-{
-	l->current = l->current->next;
-	return l->current;
+	return out;
 }
 
 FILE *fin,*fout;
@@ -85,11 +93,11 @@ int main(int argc, char *argv[])
 	double *result;
 	double res; //задаем переменную для хранения результата
 	element *var;
-	list l1,l2;
+	queue q1,q2;
 	do
 	{
-		initList (&l1);
-		initList (&l2);
+		initqueue (&q1);
+		initqueue (&q2);
 		puts ("Введите имя входного файла");
 		scanf ("%s", input);
 		puts ("Введите имя выходного файла");
@@ -126,19 +134,12 @@ int main(int argc, char *argv[])
 				break;
 
 			}
-			push (&l1, var);
+			enqueue (&q1, var);
 		}
+		free (var);
 		fclose (fin);
-		l1.current = l1.head;
-		while (l1.current != NULL)
+		while ((var = dequeue(&q1)) != NULL)
 		{
-			var->regime = l1.current->regime;
-			var->c = l1.current->c;
-			var->x = l1.current->x;
-			var->y = l1.current->y;
-			var->result = l1.current->result;
-			var->res = l1.current->res;
-			var->size = l1.current->size;
 			switch (var->regime)
 			{
 			case 'v':
@@ -154,6 +155,7 @@ int main(int argc, char *argv[])
 					var->res = result;
 					break;
 				case '*':
+					res = 0;
 					for (int i=0;i<var->size;i++)
 					{
 						res+=var->x[i]*var->y[i];
@@ -198,72 +200,59 @@ int main(int argc, char *argv[])
 						break;
 					}
 			}
-			push (&l2, var);
-			next (&l1);
+			enqueue (&q2, var);
 		}
 		if ((fout=fopen(output, "a"))==NULL)
 		{
 			fout=fopen(output, "w");
 		}
-		free (var);
-		l1.current = l1.head;
-		l2.current = l2.head;
-		while (l2.current != NULL)
+		while ((var = dequeue(&q2)) != NULL)
 		{
-			switch (l2.current->regime)
+			switch (var->regime)
 			{
 			case 'v':
 				fprintf (fout, "( ");
-				for (int i=0;i<l2.current->size;i++)
+				for (int i=0;i<var->size;i++)
 				{
-					if (i==l2.current->size-1)
+					if (i==var->size-1)
 					{
-						fprintf (fout, "%lf", l2.current->x[i]);
+						fprintf (fout, "%lf", var->x[i]);
 					}
-					else fprintf (fout, "%lf ", l2.current->x[i]);
+					else fprintf (fout, "%lf ", var->x[i]);
 				}
-				fprintf (fout, " ) %c ( ", l2.current->c);
-				for (int i=0;i<l2.current->size;i++)
+				fprintf (fout, " ) %c ( ", var->c);
+				for (int i=0;i<var->size;i++)
 				{
-					if (i==l2.current->size-1)
+					if (i==var->size-1)
 					{
-						fprintf (fout, "%lf", l2.current->y[i]);
+						fprintf (fout, "%lf", var->y[i]);
 					}
-					else fprintf (fout, "%lf ", l2.current->y[i]);
+					else fprintf (fout, "%lf ", var->y[i]);
 				}
-				if (l2.current->c == '+' || l2.current->c == '-')
+				if (var->c == '+' || var->c == '-')
 				{
 					fprintf (fout, " ) = ( ");
-					for (int i=0;i<l2.current->size;i++)
+					for (int i=0;i<var->size;i++)
 					{
-						if (i == l2.current->size-1)
+						if (i == var->size-1)
 						{
-							fprintf (fout, "%lf", l2.current->res[i]);
+							fprintf (fout, "%lf", var->res[i]);
 						}
-						else fprintf (fout, "%lf ", l2.current->res[i]);
+						else fprintf (fout, "%lf ", var->res[i]);
 					}
 					fprintf (fout, " )\n");
 				}
-				else fprintf (fout, " ) = %lf\n", l2.current->result);
+				else fprintf (fout, " ) = %lf\n", var->result);
 				break;
 			case 'n':
-				if (l2.current->c == '!')
+				if (var->c == '!')
 				{
-					fprintf (fout, "%lf! = %lf\n", *l2.current->x, l2.current->result);
+					fprintf (fout, "%lf! = %lf\n", *var->x, var->result);
 				}
-				else fprintf (fout, "%lf %c %lf = %lf\n", *l2.current->x, l2.current->c, *l2.current->y, l2.current->result);
+				else fprintf (fout, "%lf %c %lf = %lf\n", *var->x, var->c, *var->y, var->result);
 			}
-			next (&l2);
 		}
 		fclose (fout);
-		while (l1.head != NULL)
-		{
-			delete (&l1);
-		}
-		while (l2.head != NULL)
-		{
-			delete (&l2);
-		}
 		puts ("\nХотите продолжить? Введите y, если да, n, если нет");
 		scanf (" %c", &h);
 	}
