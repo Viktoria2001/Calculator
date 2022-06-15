@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 		{
 		case 'r':
 			init_stack (&s);
-			if ((fout=fopen(output, "a"))==NULL)
+			if ((fout=fopen(output, "a")) == NULL)
 			{
 				fout=fopen(output, "w");
 			}
