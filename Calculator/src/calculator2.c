@@ -255,6 +255,7 @@ int main(int argc, char *argv[])
 						else fprintf (fout, "%lf %c %lf = %lf\n", *var->x, var->c, *var->y, var->result);
 					}
 				}
+				fclose (fout);
 			}
 			else if (r=='l')
 			{
@@ -432,7 +433,6 @@ int main(int argc, char *argv[])
 			}
 			break;
 		}
-			fclose (fout);
 		puts ("\nХотите продолжить? Введите y, если да, n, если нет");
 		scanf (" %c", &h);
 	}
